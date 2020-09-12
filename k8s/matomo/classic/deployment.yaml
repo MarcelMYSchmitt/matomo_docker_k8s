@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matomo
+  labels:
+    app: matomo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: matomo
+  template:
+    metadata:
+      labels:
+        app: matomo
+    spec:
+      containers:
+      - name: matomo
+        image: docker.io/bitnami/matomo:3-debian-10
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MARIADB_HOST
+          value: mariadb
+        - name: MARIADB_PORT_NUMBER
+          value: '3306'
+        - name: MATOMO_DATABASE_USER
+          value: bn_matomo
+        - name: MATOMO_DATABASE_NAME
+          value: bitnami_matomo
+        - name: ALLOW_EMPTY_PASSWORD
+          value: 'yes'
+        - name: MATOMO_EMAIL
+          value: marcel.schmitt@schmittformatik.de
+        - name: MATOMO_PASSWORD
+          value: test123
+        ports:
+        - containerPort: 80
+          name: matomo-http
+          protocol: TCP      
+        - containerPort: 443
+          name: matomo-https
+          protocol: TCP                   
+      restartPolicy: Always
