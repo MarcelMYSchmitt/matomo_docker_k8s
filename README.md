@@ -3,7 +3,7 @@
 Simple setup of Matomo with MariaDB as storage. In this repository you can find a docker-compose.yaml and custom Kubernetes deployment files. These deployment files are available as standard files and also as helm charts. 
 In the docker-compose yaml you can find a MariaDB database image from Bitname. They are also providing a Matomo Docker Image. You can find all relevant information about these two Docker Images  here: https://github.com/bitnami/bitnami-docker-matomo
 
-In this project I'm only using the MariaDB Docker Image from Bitnami. Bitnami provide this image as runnable non-root Image. Matomo however is no runnable non-root Image (take a look at Security below).
+When I first set everything up I tried to reuse everything from Bitnami...but now I'm only using the MariaDB Docker Image from Bitnami. Bitnami provide this image as runnable non-root Image. Matomo however is no runnable non-root Image (take a look at Security below). 
 
 ---
 
@@ -70,9 +70,4 @@ When you take a look into the Dockerfile you can see that the USER is set to `10
 The Matomo Image provided from Bitnami does not support changing the permissions/privilege of a USER. If you google you can find an Image provided by Wodby: https://hub.docker.com/r/wodby/matomo  
 Inside of the Dockerfile you can also find code lines where the permissions where changed by using `CHMOD`: https://github.com/wodby/matomo/blob/master/Dockerfile
 
----
-
-
-## To Dos
-
-Extend deployment files for readiness and livenessprobes, create helm charts based on them, extend readme! 
+Beeing lazy, I decided to reuse the Image from Wodby for my repository here :) 

@@ -24,9 +24,9 @@ spec:
         - name: MARIADB_EXTRA_FLAGS
           value: --max_allowed_packet=64MB
         - name: MARIADB_DATABASE
-          value: bitnami_matomo
+          value: matomo
         - name: MARIADB_USER
-          value: bn_matomo
+          value: matomo
         - name: ALLOW_EMPTY_PASSWORD
           value: 'yes'
         ports:
