@@ -19,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ include "matomo.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      securityContext:
+        runAsUser: {{ .Values.matomo.runAsUser }}
+        fsGroup: {{ .Values.matomo.fsGroup }}      
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}

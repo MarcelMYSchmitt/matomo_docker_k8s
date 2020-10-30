@@ -10,10 +10,11 @@ When I first set everything up I tried to reuse everything from Bitnami...but no
 
 ## Info for storage classes when using PVC
 
-This setup was made on a local machine where Docker Desktop for Windows was running. So in order to use PVCs the storage class which was used is called "hostpath". Normally you have different kind of storage class names depending on which environment your application is running like "fast, slow, manual, ssd, hdd" and so on. 
+This setup was made on a local machine where Docker Desktop for Windows (whith local Kubernetes Cluster) was running. So in order to use PVCs the storage class which was used is called "hostpath". Normally you have different kind of storage class names depending on which environment your application is running like "fast, slow, manual, ssd, hdd" and so on. 
 
 In order to see which storage class your provider (locally, on premise or on cloud) provides you can use `kubectl get storageclass` to list all avalailable storage classes.
 
+Attention: You can only find the stateful MariaDB Deployment in the 'classic' deployment files. In the helm chart it's just a stateless / simple deployment. If you also want to have the helm chart as statefull deployment please change it!
 
 --- 
 

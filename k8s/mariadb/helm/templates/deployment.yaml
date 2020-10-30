@@ -19,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ include "mariadb.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      securityContext:
+        runAsUser: {{ .Values.mariadb.runAsUser }}
+        fsGroup: {{ .Values.mariadb.fsGroup }}      
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
