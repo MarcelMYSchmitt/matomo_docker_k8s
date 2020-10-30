@@ -12,7 +12,7 @@ services:
       - 'mariadb_data:/bitnami'
 
   matomo:
-    image: 'docker.io/bitnami/matomo:3-debian-10'
+    image: 'wodby/matomo:3.14'
     environment:
       - MARIADB_HOST=mariadb
       - MARIADB_PORT_NUMBER=3306

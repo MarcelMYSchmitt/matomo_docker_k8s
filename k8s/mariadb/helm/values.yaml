@@ -1,0 +1,36 @@
+replicaCount: 1
+
+image:
+  repository: docker.io/bitnami/mariadb
+  tag: 10.3-debian-10
+  pullPolicy: Always
+
+mariadb:
+  mariadbUser: matomo
+  mariadbDatabase: matomo
+  allowEmptyPassword: "'yes'"
+  mariadbExtraFlags: "--max_allowed_packet=64MB"
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 3306
+  portName: mariadb
+  targetPort: 3306  
+
+resources:
+   limits:
+     cpu: 500m
+     memory: 256Mi
+   requests:
+     memory: 128Mi
+     cpu: 1m
+
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

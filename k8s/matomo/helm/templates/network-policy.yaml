@@ -1,0 +1,13 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "matomo.fullname" . }}-networkpolicy
+spec:
+  ingress:
+  - ports:
+    - port: {{ .Values.service.port }}
+      protocol: TCP
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "matomo.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}

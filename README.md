@@ -1,9 +1,9 @@
 # Information
 
-Simple setup of Matomo with MariaDB as storage. In this repository you can find a docker-compose.yaml based on the official provided file by Bitnami and own custom Kubernetes deployment files. These deployment files are available as standard files and also as helm charts. 
+Simple setup of Matomo with MariaDB as storage. In this repository you can find a docker-compose.yaml and custom Kubernetes deployment files. These deployment files are available as standard files and also as helm charts. 
+In the docker-compose yaml you can find a MariaDB database image from Bitname. They are also providing a Matomo Docker Image. You can find all relevant information about these two Docker Images  here: https://github.com/bitnami/bitnami-docker-matomo
 
-You can find all relevant information about how to run Matomo in Docker here: https://github.com/bitnami/bitnami-docker-matomo
-
+In this project I'm only using the MariaDB Docker Image from Bitnami. Bitnami provide this image as runnable non-root Image. Matomo however is no runnable non-root Image (take a look at Security below).
 
 ---
 
@@ -20,16 +20,55 @@ In order to see which storage class your provider (locally, on premise or on clo
 
 ## Info for missing ingress files / virtual service files
 
-You will not find any ingress or istio files here. This setup was done without any of them. For testing purpose you can use port-forwarding like `kubectl -n test port-forward service/matomo 1234:443`. If you want to use ingress files you have to consider what kind of Ingress Controller you want to use like NGINX, Traeffic, KONG and so on. For Istio you need two define your Istio Gateway and also the concerning Virtual Service for the right routing to your application.
+You will not find any ingress or istio files here. This setup was done without any of them. For testing purpose you can use port-forwarding like `kubectl -n YOUR.NAMESPACE port-forward service/matomo 1234:443`. If you want to use ingress files you have to consider what kind of Ingress Controller you want to use like NGINX, Traeffic, KONG and so on. For Istio you need two define your Istio Gateway and also the concerning Virtual Service for the right routing to your application.
 
+Sample of a virtual service configuration would be: 
+```
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: matomo
+  namespace: istio-system
+gateways:
+    - gateway.istio-system.svc.cluster.local
+  hosts:
+    - "*"
+  exportTo:
+    - "."
+  http:
+    - match:
+        - uri:
+            prefix: /matomo/
+        - uri:
+            prefix: /matomo
+      route:
+        - destination:
+            host: matomo-int.YOUR_NAMESPACE.svc.cluster.local
+            port:
+              number: 80
+          weight: 100
+```
 
 ---
 
 
-## Info for security
+## Security
 
-You can find for MariaDB and Matomo the corresponding network policies for allowing traffic towards the services. Outgoing traffic is not allowed and should be avoided. 
+We consider between 'Traffic'  and 'runnable Non-Root Images'. Traffic means if we just have some kind of namespace or network isolation done via docker networks, network policies or Service Mesh Configurations. 
 
+### Traffic
+
+You can find for MariaDB and Matomo the corresponding network policies for allowing traffic towards the services. Outgoing traffic is not allowed and should be avoided.  
+
+### Non-Root
+
+When you deploy Images in your Kubernetes Cluster you can deploy them as `normal` containers without regarding any security purpose. But normally you have some kind of security guidelines to consider for running PROD Kubernetes Clusters like to make sure that PODs are not allowed to be run with higher privileges. 
+
+Bitnami provides MariaDB as non-root Image: https://hub.docker.com/r/bitnami/mariadb  
+When you take a look into the Dockerfile you can see that the USER is set to `1001`: https://github.com/bitnami/bitnami-docker-mariadb/blob/10.5.6-debian-10-r14/10.5/debian-10/Dockerfile  
+
+The Matomo Image provided from Bitnami does not support changing the permissions/privilege of a USER. If you google you can find an Image provided by Wodby: https://hub.docker.com/r/wodby/matomo  
+Inside of the Dockerfile you can also find code lines where the permissions where changed by using `CHMOD`: https://github.com/wodby/matomo/blob/master/Dockerfile
 
 ---
 

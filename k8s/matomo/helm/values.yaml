@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  repository: wodby/matomo
+  tag: 3.14
+  pullPolicy: Always
+
+matomo:
+  mariadbHost: mariadb
+  mariadbPortNumber: '3306'
+  matomoDatabaseUser: matomo
+  matomoDatabaseName: matomo
+  allowEmptyPassword: "'yes'"
+  matomoEmail: marcel.schmitt@schmittformatik.de
+  matomoPassword: test123
+  
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  portHttp: 80
+  portNameHttp: matomohttp
+  targetPortHttp: 80  
+  portHttps: 443
+  portNameHttps: matomohttps
+  targetPortHttps: 443  
+
+resources:
+   limits:
+     cpu: 500m
+     memory: 256Mi
+   requests:
+     memory: 128Mi
+     cpu: 1m
+
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
