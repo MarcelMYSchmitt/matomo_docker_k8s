@@ -1,9 +1,9 @@
 # Information
 
 Simple setup of Matomo with MariaDB as storage. In this repository you can find a docker-compose.yaml and custom Kubernetes deployment files. These deployment files are available as standard files and also as helm charts. 
-In the docker-compose yaml you can find a MariaDB database image from Bitname. They are also providing a Matomo Docker Image. You can find all relevant information about these two Docker Images  here: https://github.com/bitnami/bitnami-docker-matomo
+In the docker-compose yaml you can find a MariaDB database image from Bitnami. They are also providing a Matomo Docker Image. You can find all relevant information about these two Docker Images here: https://github.com/bitnami/bitnami-docker-matomo
 
-When I first set everything up I tried to reuse everything from Bitnami...but now I'm only using the MariaDB Docker Image from Bitnami. Bitnami provide this image as runnable non-root Image. Matomo however is no runnable non-root Image (take a look at Security below). 
+When I first set everything up I tried to reuse everything from Bitnami...but now I'm only using the MariaDB Docker Image. Bitnami provides this image as runnable non-root Image. Matomo however is no runnable non-root Image (take a look at Security below). 
 
 ---
 
@@ -44,7 +44,7 @@ gateways:
             prefix: /matomo
       route:
         - destination:
-            host: matomo-int.YOUR_NAMESPACE.svc.cluster.local
+            host: matomo.YOUR_NAMESPACE.svc.cluster.local
             port:
               number: 80
           weight: 100
@@ -55,7 +55,8 @@ gateways:
 
 ## Security
 
-We consider between 'Traffic'  and 'runnable Non-Root Images'. Traffic means if we just have some kind of namespace or network isolation done via docker networks, network policies or Service Mesh Configurations. 
+We distinguish among 'Traffic'  and 'runnable Non-Root Images'. 
+
 
 ### Traffic
 
