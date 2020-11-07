@@ -1,5 +1,7 @@
 # Information
 
+<b> STILL IN PROGRESS AND NOT READY TO BE USED YET! </b>
+
 Simple setup of Matomo with MariaDB as storage. In this repository you can find a docker-compose.yaml and custom Kubernetes deployment files. These deployment files are available as standard files and also as helm charts. 
 In the docker-compose yaml you can find a MariaDB database image from Bitnami. They are also providing a Matomo Docker Image. You can find all relevant information about these two Docker Images here: https://github.com/bitnami/bitnami-docker-matomo
 
