@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "matomo.fullname" . }}-nginx-configmap 
+  labels:
+    app.kubernetes.io/name: {{ include "matomo.name" . }}
+    helm.sh/chart: {{ include "matomo.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  nginx.conf: |
+    # nginx.conf
+    
+    pid /tmp/nginx.pid; 
+
+    events {
+        worker_connections  1024;
+    }
+    
+    http {
+        proxy_http_version 1.1;
+        proxy_buffering off;
+        proxy_set_header Host $http_host;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Proxy "";      
+        proxy_set_header X-Forwarded-Uri /{{ .Values.nginx.matomoProxyPath }};
+        
+
+        server {
+            listen 8080;
+            server_name nginx;
+    
+            port_in_redirect off;
+
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+            include /etc/nginx/mime.types;
+
+            access_log /var/log/nginx/access.log;
+            error_log  /var/log/nginx/error.log;        
+
+            gzip on;
+            gzip_min_length 1000;
+            gzip_proxied expired no-cache no-store private auth;
+            gzip_types text/plain text/css application/json application/javascript application/x-javascript text/xml application/xml application/xml+rss text/javascript;
+    
+            location /{{ .Values.nginx.matomoProxyPath }}/ {
+              proxy_pass http://localhost:{{ .Values.nginx.matomoPort }}/;
+            }  
+
+            # redirect for having a beautiful url under /{{ .Values.nginx.matomoProxyPath }}
+            location /{{ .Values.nginx.matomoProxyPath }} {
+              if ($request_uri ~ ^([^.\?]*[^/])$) {
+                return 301 $1/;
+              }
+            }
+                           
+        }
+    }    

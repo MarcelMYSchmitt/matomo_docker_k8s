@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "matomo.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "matomo.name" . }}
+    helm.sh/chart: {{ include "matomo.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "matomo.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "matomo.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:                 
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.matomo.image.repository }}:{{ .Values.matomo.image.tag }}"
+          imagePullPolicy: {{ .Values.matomo.image.pullPolicy }}
+          env:
+            - name: MATOMO_DATABASE_HOST
+              value: {{ .Values.matomo.env.mariadbHost }}   
+            - name: MATOMO_DATABASE_PORT_NUMBER
+              value: {{ .Values.matomo.env.mariadbPortNumber }}     
+            - name: MATOMO_DATABASE_USER
+              value: {{ .Values.matomo.env.matomoDatabaseUser }}   
+            - name: MATOMO_DATABASE_NAME
+              value: {{ .Values.matomo.env.matomoDatabaseName }}
+            - name: ALLOW_EMPTY_PASSWORD
+              value: {{ .Values.matomo.env.allowEmptyPassword }}             
+            - name: MATOMO_WEBSITE_HOST
+              value: {{ .Values.matomo.env.matomoWebsiteHost }}
+            - name: MATOMO_WEBSITE_NAME
+              value: {{ .Values.matomo.env.matomoWebsiteName }}              
+            - name: MATOMO_USERNAME
+              value: {{ .Values.matomo.env.matomoUsername }}
+            - name: MATOMO_PASSWORD
+              value: {{ .Values.matomo.env.matomoPassword }}             
+            - name: APACHE_HTTP_PORT_NUMBER
+              value: {{ .Values.matomo.env.apachePort }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.matomo.port }}
+              protocol: TCP           
+{{- if eq .Values.matomo.initialInstallation "installed"}}
+          volumeMounts:
+            - mountPath: /bitnami/matomo/config
+              name: matomo-config
+            - mountPath: /bitnami/matomo/misc/user
+              name: matomo-misc  
+{{- end }}                            
+          resources:
+            {{- toYaml .Values.matomo.resources | nindent 12 }}
+        - name: {{ .Chart.Name }}-nginx
+          image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["nginx", "-g", "daemon off;", "-c", "/config/nginx.conf"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /config
+              name: config-nginx
+          resources:
+            {{- toYaml .Values.nginx.resources | nindent 12 }}              
+{{- if .Values.image.pullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.image.pullSecret }}
+{{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      volumes:
+      - name: matomo-config
+        configMap:
+          name: {{ template "matomo.fullname" . }}-matomo-config-configmap
+      - name: matomo-misc
+        configMap:
+          name: {{ template "matomo.fullname" . }}-matomo-misc-configmap                 
+      - name: config-nginx
+        configMap:
+          name: {{ template "matomo.fullname" . }}-nginx-configmap 

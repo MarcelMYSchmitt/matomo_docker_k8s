@@ -1,0 +1,68 @@
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+
+podSecurityContext: 
+  fsGroup: 2000
+  runAsUser: 1000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+service:
+  type: ClusterIP  
+  targetPort: 8080
+  port: 80
+
+matomo:
+  image:
+    repository: bitnami/matomo:4-debian-10
+    tag: 4-debian-10  
+
+  port: 9000
+
+  # we need this flag to make sure matomo will install all tables in mariadb
+  # flag is needed just initial
+  initialInstallation: notInstalled
+  
+  env:
+    mariadbHost: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    mariadbPortNumber: "'3306'"
+    matomoDatabaseUser: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    matomoDatabaseName: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    allowEmptyPassword: "'yes'"
+    matomoWebsiteHost: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    matomoWebsiteName: Truckboard    
+    matomoUsername: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    matomoPassword: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+    matomoProxyUriHeader: 1
+    assumeSecureProtocol: 1
+    apachePort: "'9000'"
+
+  resources: 
+    limits:
+      cpu: 1
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+nginx:
+  image:
+    repository: nginxinc/nginx-unprivileged
+    tag: 1.17.5-alpine
+
+  matomoPort: 9000
+  matomoProxyPath: matomo
+
+  resources: 
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

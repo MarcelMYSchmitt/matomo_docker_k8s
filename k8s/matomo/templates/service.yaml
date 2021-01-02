@@ -10,14 +10,10 @@ metadata:
 spec:
   type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.portHttp }}
-      targetPort: {{ .Values.service.targetPortHttp }}
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
       protocol: TCP
-      name: {{ .Values.service.portNameHttp }}
-    - port: {{ .Values.service.portHttps }}
-      targetPort: {{ .Values.service.targetPortHttps }}
-      protocol: TCP
-      name: {{ .Values.service.portNameHttps }}      
+      name: http
   selector:
     app.kubernetes.io/name: {{ include "matomo.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

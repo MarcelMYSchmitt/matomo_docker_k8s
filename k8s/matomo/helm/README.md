@@ -1,3 +1,0 @@
-# Information
-
-Setup of Matomo. 

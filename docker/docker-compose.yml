@@ -2,28 +2,31 @@ version: '2'
 
 services:
   mariadb:
-    image: 'docker.io/bitnami/mariadb:10.3-debian-10'
+    image: bitnami/mariadb:10.3-debian-10
+    container_name: mariadb
     environment:
-      - MARIADB_USER=bn_matomo
-      - MARIADB_DATABASE=bitnami_matomo
+      - MARIADB_USER=matomo
+      - MARIADB_DATABASE=matomo
       - ALLOW_EMPTY_PASSWORD=yes
       - MARIADB_EXTRA_FLAGS=--max_allowed_packet=64MB
     volumes:
       - 'mariadb_data:/mariadb'
 
   matomo:
-    image: 'wodby/matomo:3.14'
+    image: bitnami/matomo:4-debian-10
+    container_name: matomo
     environment:
-      - MARIADB_HOST=mariadb
+      - MATOMO_DATABASE_HOST=mariadb
       - MARIADB_PORT_NUMBER=3306
-      - MATOMO_DATABASE_USER=bn_matomo
-      - MATOMO_DATABASE_NAME=bitnami_matomo
+      - MATOMO_DATABASE_PORT_NUMBER=matomo
+      - MATOMO_DATABASE_NAME=matomo
+      - MATOMO_DATABASE_USER=matomo
       - ALLOW_EMPTY_PASSWORD=yes
-      - MATOMO_EMAIL=marcel.schmitt@schmittformatik.de
+      - MATOMO_USERNAME=marcel.schmitt@schmittformatik.de
       - MATOMO_PASSWORD=test123
     ports:
-      - '80:80'
-      - '443:443'
+      - '80:8080'
+      - '443:8443'
     depends_on:
       - mariadb
 

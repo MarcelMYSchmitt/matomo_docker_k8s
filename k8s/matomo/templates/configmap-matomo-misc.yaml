@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "matomo.fullname" . }}-matomo-misc-configmap
+  labels:
+    app.kubernetes.io/name: {{ include "matomo.name" . }}
+    helm.sh/chart: {{ include "matomo.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+data:
+  index.html: |
+    This directory stores the custom logo for this Piwik server. Learn more: <a href="https://matomo.org/faq/new-to-piwik/faq_129/">How do I customise the logo in Piwik?</a> 

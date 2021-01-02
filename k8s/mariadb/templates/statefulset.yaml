@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "mariadb.fullname" . }}
   labels:
@@ -8,6 +8,7 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
+  serviceName: {{ include "mariadb.fullname" . }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -21,7 +22,7 @@ spec:
     spec:
       securityContext:
         runAsUser: {{ .Values.mariadb.runAsUser }}
-        fsGroup: {{ .Values.mariadb.fsGroup }}      
+        fsGroup: {{ .Values.mariadb.fsGroup }}
       containers:
         - name: {{ .Chart.Name }}
           image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
@@ -37,7 +38,10 @@ spec:
               value: {{ .Values.mariadb.mariadbExtraFlags }}
           ports:
             - containerPort: {{ .Values.service.port }}
-              name: {{ .Values.service.portName }}          
+              name: {{ .Values.service.portName }}  
+          volumeMounts:
+            - name: {{ .Values.persistence.name }}
+              mountPath: /var/lib/mysql              
           resources:
 {{- toYaml .Values.resources | nindent 12 }}
 {{- if .Values.image.pullSecret }}
@@ -56,3 +60,19 @@ spec:
       tolerations:
 {{- toYaml . | nindent 8 }}
 {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ .Values.persistence.name }}
+    spec:
+      accessModes:
+        - {{ .Values.persistence.accessMode | quote }}
+    {{- if .Values.persistence.storageClass }}
+    {{- if (eq "-" .Values.persistence.storageClass) }}
+      storageClassName: ""
+    {{- else }}
+      storageClassName: "{{ .Values.persistence.storageClass }}"
+    {{- end }}
+    {{- end }}
+      resources:
+        requests:
+          storage: "{{ .Values.persistence.size }}"

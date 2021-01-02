@@ -1,18 +1,20 @@
 replicaCount: 1
 
 image:
-  repository: docker.io/bitnami/mariadb
+  repository: bitnami/mariadb
   tag: 10.3-debian-10
   pullPolicy: Always
 
-mariadb:
-  mariadbUser: matomo
-  mariadbDatabase: matomo
-  allowEmptyPassword: "'yes'"
-  mariadbExtraFlags: "--max_allowed_packet=64MB"
-
 nameOverride: ""
 fullnameOverride: ""
+
+mariadb:
+  mariadbUser: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+  mariadbDatabase: SHOULD_BE_REPLACED_BY_DEPLOYMENT_TOOL
+  allowEmptyPassword: "'yes'"
+  mariadbExtraFlags: "--max_allowed_packet=64MB"
+  runAsUser: 1001
+  fsGroup: 1001
 
 service:
   type: ClusterIP
@@ -28,7 +30,12 @@ resources:
      memory: 128Mi
      cpu: 1m
 
-
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  name: mariadb-data
+  size: "1Gi"
+  
 nodeSelector: {}
 
 tolerations: []
